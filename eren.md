@@ -78,5 +78,61 @@ AI da anladığım gibi olduğunu söyledi işte:
 -----------------------------------------------------------------------------
 
 4. PHASE 3 – C4 Diyagramları (Structurizr DSL)
-docs/architecture/workspace.dsl dosyası + 3 tactic (Warm Redundant Spare, Input Validation, Data Replication) modellenecek.
-DSL dosyasını yazmamı ister misin? → "C4 DSL yaz" de.
+
+
+Phase 3 — Ne Yapacağız?
+Task 3.1 — C4 Diyagramları (Structurizr DSL)
+
+Sistemi 3 seviyede modelleyeceğiz:
+
+Level 1 (System Context): API Client → Restful Booker sistemi
+Level 2 (Container): Node.js app, Primary DB, Replica DB, Standby App
+Level 3 (Component): Router, Validator, Parser, Booking Model, Auth Handler
+
+
+
+workspace.dsl dosyasında C4 Architecture modelini Structurizr DSL formatında yazdık. İşte yaptıklarımız:
+
+Model (Kim var, ne var)
+
+client → API'yi kullanan kişi/sistem (Person)
+restfulBooker → Ana yazılım sistemi (SoftwareSystem)
+webApp → Node.js/Express uygulaması (birincil container)
+standbyApp → Yedek uygulama instance'ı (container)
+primaryDb → Ana LokiJS veritabanı (container)
+replicaDb → Replica veritabanı (container)
+webApp'in içindeki componentler (Level 3)
+
+validator → Gelen request'leri doğrular
+router → Tüm endpoint'leri yönetir
+parser → JSON/XML/URL-encoded response formatlar
+bookingCreator → Başlangıçta DB'yi seed'ler
+authHandler → Token üretir ve doğrular
+bookingModel → DB CRUD işlemleri
+3 Architectural Tactic (Ders gereksinimi)
+
+Tactic	Nerede görünür
+Warm Redundant Spare	standbyApp — Level 2 diyagramda
+Input Validation	validator — Level 3 diyagramda
+Data Replication	replicaDb — Level 2 diyagramda
+3 Diagram View
+
+Level 1 – System Context (dışarıdan bakış)
+Level 2 – Container (container'lar arası ilişki)
+Level 3 – Component (webApp içindeki componentler)
+
+
+
+Task 3.2 — 3 Architectural Tactic (diyagramda görünür olacak)
+
+| Tactic               | Nerede görünür                          | Dosya                                        |
+|----------------------|-----------------------------------------|----------------------------------------------|
+| Warm Redundant Spare | Level 2'de Standby Application container| Level2-Container-dark.png                    |
+| Input Validation     | Level 3'te Validator component          | Level3-Component-dark.png                    |
+| Data Replication     | Level 2'de Replica DB container         | Level2-Container-dark.png                    |
+
+EREN: TÜM PNG'LER docs/architecture/ KLASÖRÜNE EKLENDİ VE eren BRANCH'İNE PUSH EDİLDİ.
+- Level1-SystemContext-dark.png
+- Level2-Container-dark.png
+- Level3-Component-dark.png
+(+ her birinin legend/key versiyonu)
