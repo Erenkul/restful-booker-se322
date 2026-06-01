@@ -165,6 +165,65 @@ paths:
         '500':
           description: Internal server error
 
+  /booking/search:
+    get:
+      tags:
+        - Booking
+      summary: Search bookings (full objects)
+      description: Returns a list of full booking objects matching the given filters. Unlike GET /booking which returns only IDs, this endpoint returns complete booking details.
+      operationId: searchBookings
+      parameters:
+        - name: firstname
+          in: query
+          description: Filter by guest first name
+          required: false
+          schema:
+            type: string
+          example: Jim
+        - name: lastname
+          in: query
+          description: Filter by guest last name
+          required: false
+          schema:
+            type: string
+          example: Brown
+        - name: checkin
+          in: query
+          description: Filter bookings with check-in on or after this date (YYYY-MM-DD)
+          required: false
+          schema:
+            type: string
+            format: date
+          example: '2014-03-13'
+        - name: checkout
+          in: query
+          description: Filter bookings with check-out on or before this date (YYYY-MM-DD)
+          required: false
+          schema:
+            type: string
+            format: date
+          example: '2014-05-21'
+      responses:
+        '200':
+          description: List of full booking objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Booking'
+              example:
+                - firstname: Jim
+                  lastname: Brown
+                  totalprice: 111
+                  depositpaid: true
+                  bookingdates:
+                    checkin: '2018-01-01'
+                    checkout: '2019-01-01'
+                  additionalneeds: Breakfast
+        '500':
+          description: Internal server error
+
   /booking/{id}:
     get:
       tags:
