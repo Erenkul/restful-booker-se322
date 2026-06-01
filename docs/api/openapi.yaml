@@ -1,0 +1,396 @@
+openapi: 3.1.0
+info:
+  title: Restful Booker API
+  description: >
+    A RESTful web service for managing hotel bookings.
+    Supports creating, reading, updating, deleting, and searching bookings.
+  version: 1.0.0
+  contact:
+    name: Restful Booker
+    url: https://github.com/mwinteringham/restful-booker
+
+servers:
+  - url: http://localhost:3001
+    description: Local development server
+
+tags:
+  - name: Auth
+    description: Authentication operations
+  - name: Booking
+    description: Booking management operations
+  - name: Health
+    description: Health check
+
+paths:
+
+  /ping:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      description: Returns a 201 response if the API is up and running.
+      operationId: ping
+      responses:
+        '201':
+          description: API is alive
+
+  /auth:
+    post:
+      tags:
+        - Auth
+      summary: Create authentication token
+      description: Creates a new auth token to use for PUT, PATCH and DELETE requests.
+      operationId: createToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthCredentials'
+            example:
+              username: admin
+              password: password123
+      responses:
+        '200':
+          description: Token created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthToken'
+              example:
+                token: abc123def456
+        '200 (bad credentials)':
+          description: Bad credentials returns a reason field
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reason:
+                    type: string
+              example:
+                reason: Bad credentials
+
+  /booking:
+    get:
+      tags:
+        - Booking
+      summary: Get all booking IDs
+      description: Returns IDs of all bookings. Supports optional filtering by name and dates.
+      operationId: getBookingIds
+      parameters:
+        - name: firstname
+          in: query
+          description: Filter by guest first name
+          required: false
+          schema:
+            type: string
+          example: Jim
+        - name: lastname
+          in: query
+          description: Filter by guest last name
+          required: false
+          schema:
+            type: string
+          example: Brown
+        - name: checkin
+          in: query
+          description: Filter bookings with check-in on or after this date (YYYY-MM-DD)
+          required: false
+          schema:
+            type: string
+            format: date
+          example: '2014-03-13'
+        - name: checkout
+          in: query
+          description: Filter bookings with check-out on or before this date (YYYY-MM-DD)
+          required: false
+          schema:
+            type: string
+            format: date
+          example: '2014-05-21'
+      responses:
+        '200':
+          description: List of booking IDs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BookingId'
+              example:
+                - bookingid: 1
+                - bookingid: 2
+                - bookingid: 3
+
+    post:
+      tags:
+        - Booking
+      summary: Create a new booking
+      description: Creates a new booking and returns the booking details with the assigned ID.
+      operationId: createBooking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Booking'
+            example:
+              firstname: Jim
+              lastname: Brown
+              totalprice: 111
+              depositpaid: true
+              bookingdates:
+                checkin: '2018-01-01'
+                checkout: '2019-01-01'
+              additionalneeds: Breakfast
+      responses:
+        '200':
+          description: Booking created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingResponse'
+              example:
+                bookingid: 1
+                booking:
+                  firstname: Jim
+                  lastname: Brown
+                  totalprice: 111
+                  depositpaid: true
+                  bookingdates:
+                    checkin: '2018-01-01'
+                    checkout: '2019-01-01'
+                  additionalneeds: Breakfast
+        '500':
+          description: Internal server error
+
+  /booking/{id}:
+    get:
+      tags:
+        - Booking
+      summary: Get a booking by ID
+      description: Returns a specific booking by its ID.
+      operationId: getBooking
+      parameters:
+        - $ref: '#/components/parameters/BookingId'
+      responses:
+        '200':
+          description: Booking found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+              example:
+                firstname: Jim
+                lastname: Brown
+                totalprice: 111
+                depositpaid: true
+                bookingdates:
+                  checkin: '2018-01-01'
+                  checkout: '2019-01-01'
+                additionalneeds: Breakfast
+        '404':
+          description: Booking not found
+
+    put:
+      tags:
+        - Booking
+      summary: Update a booking (full update)
+      description: Replaces an existing booking with new data. Requires authentication.
+      operationId: updateBooking
+      parameters:
+        - $ref: '#/components/parameters/BookingId'
+        - $ref: '#/components/parameters/CookieToken'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Booking'
+            example:
+              firstname: James
+              lastname: Brown
+              totalprice: 111
+              depositpaid: true
+              bookingdates:
+                checkin: '2018-01-01'
+                checkout: '2019-01-01'
+              additionalneeds: Breakfast
+      responses:
+        '200':
+          description: Booking updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '403':
+          description: Forbidden – authentication required
+        '404':
+          description: Booking not found
+        '405':
+          description: Method not allowed
+
+    patch:
+      tags:
+        - Booking
+      summary: Partially update a booking
+      description: Updates one or more fields of an existing booking. Requires authentication.
+      operationId: partialUpdateBooking
+      parameters:
+        - $ref: '#/components/parameters/BookingId'
+        - $ref: '#/components/parameters/CookieToken'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingPartial'
+            example:
+              firstname: James
+              lastname: Brown
+      responses:
+        '200':
+          description: Booking partially updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '403':
+          description: Forbidden – authentication required
+        '404':
+          description: Booking not found
+
+    delete:
+      tags:
+        - Booking
+      summary: Delete a booking
+      description: Deletes an existing booking by ID. Requires authentication.
+      operationId: deleteBooking
+      parameters:
+        - $ref: '#/components/parameters/BookingId'
+        - $ref: '#/components/parameters/CookieToken'
+      responses:
+        '201':
+          description: Booking deleted successfully
+        '403':
+          description: Forbidden – authentication required
+        '404':
+          description: Booking not found
+
+components:
+
+  parameters:
+    BookingId:
+      name: id
+      in: path
+      required: true
+      description: The ID of the booking
+      schema:
+        type: integer
+        example: 1
+
+    CookieToken:
+      name: Cookie
+      in: header
+      required: true
+      description: Authentication token in cookie format (token=<value>)
+      schema:
+        type: string
+        example: token=abc123def456
+
+  schemas:
+
+    AuthCredentials:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          description: Admin username
+        password:
+          type: string
+          description: Admin password
+
+    AuthToken:
+      type: object
+      properties:
+        token:
+          type: string
+          description: Authentication token for subsequent requests
+
+    BookingId:
+      type: object
+      properties:
+        bookingid:
+          type: integer
+          description: Unique booking identifier
+
+    BookingDates:
+      type: object
+      required:
+        - checkin
+        - checkout
+      properties:
+        checkin:
+          type: string
+          format: date
+          description: Check-in date (YYYY-MM-DD)
+        checkout:
+          type: string
+          format: date
+          description: Check-out date (YYYY-MM-DD)
+
+    Booking:
+      type: object
+      required:
+        - firstname
+        - lastname
+        - totalprice
+        - depositpaid
+        - bookingdates
+      properties:
+        firstname:
+          type: string
+          description: Guest first name
+        lastname:
+          type: string
+          description: Guest last name
+        totalprice:
+          type: integer
+          description: Total price of the booking
+        depositpaid:
+          type: boolean
+          description: Whether a deposit has been paid
+        bookingdates:
+          $ref: '#/components/schemas/BookingDates'
+        additionalneeds:
+          type: string
+          description: Any additional needs (e.g. Breakfast)
+
+    BookingPartial:
+      type: object
+      properties:
+        firstname:
+          type: string
+        lastname:
+          type: string
+        totalprice:
+          type: integer
+        depositpaid:
+          type: boolean
+        bookingdates:
+          $ref: '#/components/schemas/BookingDates'
+        additionalneeds:
+          type: string
+
+    BookingResponse:
+      type: object
+      properties:
+        bookingid:
+          type: integer
+          description: The newly created booking ID
+        booking:
+          $ref: '#/components/schemas/Booking'
