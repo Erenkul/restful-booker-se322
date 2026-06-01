@@ -1,3 +1,31 @@
+ALP EREN KUL 22244710073
+
+-----------------------------------------------------------------------------
+PROJE ÖZETİ – SE322
+
+1. New Endpoint – GET /booking/search
+   routes/index.js dosyasına eklendi. GET /booking'den farkı: ID yerine tam booking objelerini döndürür.
+   Filtreler: firstname, lastname, checkin, checkout (query param)
+
+2. OpenAPI Specification
+   Dosya: docs/api/openapi.yaml
+   Tüm endpointler belgelenmiştir (GET /booking/search dahil).
+
+3. C4 Architecture (Level 1, 2, 3)
+   Dosya: docs/architecture/workspace.dsl
+   Görseller: docs/architecture/
+     - Level1-SystemContext-dark.png  → Sistem bağlamı
+     - Level2-Container-dark.png      → Container'lar
+     - Level3-Component-dark.png      → Component'ler
+
+4. Architectural Tactics (3 adet)
+   - Warm Redundant Spare  → Standby Application (Level 2)
+   - Input Validation      → Validator component (Level 3)
+   - Data Replication      → Replica Database (Level 2)
+-----------------------------------------------------------------------------
+
+
+
 Restful-Booker Nedir?
 Otel rezervasyon sistemi API'si — yazılım test eğitimi için tasarlanmış bir REST API uygulaması. Node.js / Express ile yazılmış.
 
