@@ -11,6 +11,7 @@ restful-booker-se322/
 ├── helpers/            → Parser, validator, booking creator yardımcıları
 ├── tests/spec.js       → Otomatik testler (Mocha + Chai)
 └── public/             → Statik dosyalar / API dokümantasyonu
+
 API Endpoint'leri
 Method	URL	Açıklama
 GET	/ping	Sunucu sağlık kontrolü
@@ -21,6 +22,7 @@ PUT	/booking/:id	Rezervasyonu tamamen güncelle
 PATCH	/booking/:id	Rezervasyonu kısmen güncelle
 DELETE	/booking/:id	Rezervasyonu sil
 POST	/auth	Token al (login)
+
 Önemli Detaylar
 Veritabanı: Gerçek bir DB yok, LokiJS kullanıyor (uygulama kapanınca veriler siliyor)
 Kimlik doğrulama: PUT, PATCH, DELETE için ya token cookie ya da Basic Auth gerekiyor
@@ -28,8 +30,38 @@ Kullanıcı adı: admin, Şifre: password123
 Format desteği: JSON, XML ve URL-encoded formatları destekliyor
 Test amacıyla tasarlandığı için başlangıçta 10 rastgele rezervasyon seed'leniyor
 Test framework: Mocha + Chai + Supertest (npm test ile çalışır)
+
+
 Nasıl Çalıştırılır?
 
 npm install
 npm start   # http://localhost:3000 adresinde açılır
 Kısaca: API testing pratikleri için hazırlanmış, gerçek bir otel rezervasyon sistemi simülasyonu. SE322 dersi için test yazma alıştırması yapılacak bir proje olduğu anlaşılıyor.
+
+
+
+
+
+2. PHASE 1 – OpenAPI Spec
+docs/api/openapi.yaml dosyası oluşturman gerekiyor. restful-booker'ın mevcut endpointleri:
+MethodEndpointAçıklamaGET/bookingTüm booking ID'leriPOST/bookingYeni booking oluşturGET/booking/{id}Belirli bookingPUT/booking/{id}GüncellePATCH/booking/{id}Kısmi güncelleDELETE/booking/{id}SilPOST/authToken alGET/pingHealth check
+
+
+EREN: BU PHASE DE GENEL OLARAK YAPTIĞIMIZ APININ ENDPOINTLERINI, ALDIĞI PARAMETRELERİ VE DÖNEN RESPONSE LARI İÇERİYOR.
+
+
+
+EndpointAçıklamaGET /pingHealth checkPOST /authToken almaGET /bookingTüm ID'ler (filtreli/filtresiz)POST /bookingYeni booking oluşturGET /booking/{id}Tek booking getirPUT /booking/{id}Tam güncellemePATCH /booking/{id}Kısmi güncellemeDELETE /booking/{id}Silme
+
+
+3. PHASE 2 – Yeni Endpoint: GET /booking/search
+routes/ klasörüne yeni route ekleyeceksin. Örnek Node.js kodu:
+javascriptrouter.get('/booking/search', async (req, res) => {
+  const { firstname, lastname, checkin, checkout } = req.query;
+  // filtreleme mantığı
+});
+Tam implementasyonu yazmamı ister misin? → "Search endpoint yaz" de.
+
+4. PHASE 3 – C4 Diyagramları (Structurizr DSL)
+docs/architecture/workspace.dsl dosyası + 3 tactic (Warm Redundant Spare, Input Validation, Data Replication) modellenecek.
+DSL dosyasını yazmamı ister misin? → "C4 DSL yaz" de.
