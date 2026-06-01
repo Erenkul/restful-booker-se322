@@ -41,26 +41,41 @@ Kısaca: API testing pratikleri için hazırlanmış, gerçek bir otel rezervasy
 
 
 
-
+-----------------------------------------------------------------------------
 2. PHASE 1 – OpenAPI Spec
-docs/api/openapi.yaml dosyası oluşturman gerekiyor. restful-booker'ın mevcut endpointleri:
-MethodEndpointAçıklamaGET/bookingTüm booking ID'leriPOST/bookingYeni booking oluşturGET/booking/{id}Belirli bookingPUT/booking/{id}GüncellePATCH/booking/{id}Kısmi güncelleDELETE/booking/{id}SilPOST/authToken alGET/pingHealth check
+docs/api/openapi.yaml dosyası oluşturuldu. Mevcut tüm endpointler belgelendi.
 
+| Method | Endpoint        | Açıklama                        |
+|--------|-----------------|----------------------------------|
+| GET    | /ping           | Health check                     |
+| POST   | /auth           | Token alma                       |
+| GET    | /booking        | Tüm ID'ler (filtreli/filtresiz)  |
+| POST   | /booking        | Yeni booking oluştur             |
+| GET    | /booking/{id}   | Tek booking getir                |
+| PUT    | /booking/{id}   | Tam güncelleme                   |
+| PATCH  | /booking/{id}   | Kısmi güncelleme                 |
+| DELETE | /booking/{id}   | Silme                            |
 
 EREN: BU PHASE DE GENEL OLARAK YAPTIĞIMIZ APININ ENDPOINTLERINI, ALDIĞI PARAMETRELERİ VE DÖNEN RESPONSE LARI İÇERİYOR.
 
-
-
-EndpointAçıklamaGET /pingHealth checkPOST /authToken almaGET /bookingTüm ID'ler (filtreli/filtresiz)POST /bookingYeni booking oluşturGET /booking/{id}Tek booking getirPUT /booking/{id}Tam güncellemePATCH /booking/{id}Kısmi güncellemeDELETE /booking/{id}Silme
-
-
+-----------------------------------------------------------------------------
 3. PHASE 2 – Yeni Endpoint: GET /booking/search
 routes/ klasörüne yeni route ekleyeceksin. Örnek Node.js kodu:
 javascriptrouter.get('/booking/search', async (req, res) => {
   const { firstname, lastname, checkin, checkout } = req.query;
   // filtreleme mantığı
 });
-Tam implementasyonu yazmamı ister misin? → "Search endpoint yaz" de.
+
+
+EREN: routes/index.js de get/booking sadece id leri döndürüyor anladığım. bizim ekleyeceğimiz ile filtrelerle tam booking booking objeleri döndürülecek. bu GET /booking/search ile.
+
+AI da anladığım gibi olduğunu söyledi işte:
+    GET /booking → sadece [{ bookingid: 1 }, { bookingid: 2 }] döner
+    GET /booking/search → tam objeleri döner (isim, fiyat, tarihler vs.)
+
+ GET /booking/search endpoint'i koda eklenmeli
+ openapi.yaml bu yeni endpoint ile güncellenmeli
+-----------------------------------------------------------------------------
 
 4. PHASE 3 – C4 Diyagramları (Structurizr DSL)
 docs/architecture/workspace.dsl dosyası + 3 tactic (Warm Redundant Spare, Input Validation, Data Replication) modellenecek.
