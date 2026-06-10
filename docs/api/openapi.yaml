@@ -162,6 +162,69 @@ paths:
                 $ref: '#/components/schemas/BookingWithId'
         '500':
           description: Internal server error due to invalid payload
+  /booking/search:
+    get:
+      summary: Search Bookings
+      description: Returns all bookings that match the search criteria. Query parameters are filters.
+      parameters:
+        - name: firstname
+          in: query
+          required: false
+          description: Return bookings with a specific firstname
+          schema:
+            type: string
+            example: Sally
+        - name: lastname
+          in: query
+          required: false
+          description: Return bookings with a specific lastname
+          schema:
+            type: string
+            example: Brown
+        - name: checkin
+          in: query
+          required: false
+          description: Return bookings that have a checkin date greater than or equal to the set checkin date. Format must be CCYY-MM-DD.
+          schema:
+            type: string
+            format: date
+            example: "2014-03-13"
+        - name: checkout
+          in: query
+          required: false
+          description: Return bookings that have a checkout date less than or equal to the set checkout date. Format must be CCYY-MM-DD.
+          schema:
+            type: string
+            format: date
+            example: "2014-05-21"
+      responses:
+        '200':
+          description: A list of bookings matching the search criteria
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BookingSearchResult'
+              example:
+                - bookingid: 1
+                  firstname: Sally
+                  lastname: Brown
+                  totalprice: 111
+                  depositpaid: true
+                  bookingdates:
+                    checkin: "2013-02-23"
+                    checkout: "2014-10-23"
+                  additionalneeds: Breakfast
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BookingSearchResult'
+        '418':
+          description: I'm a teapot (Returned if Accept header is invalid)
+        '500':
+          description: Internal server error
   /booking/{id}:
     get:
       summary: GetBooking
@@ -395,3 +458,53 @@ components:
           example: 1
         booking:
           $ref: '#/components/schemas/Booking'
+    BookingSearchResult:
+      type: object
+      required:
+        - bookingid
+        - firstname
+        - lastname
+        - totalprice
+        - depositpaid
+        - bookingdates
+      properties:
+        bookingid:
+          type: integer
+          description: ID of the booking
+          example: 1
+        firstname:
+          type: string
+          description: Firstname for the guest who made the booking
+          example: Sally
+        lastname:
+          type: string
+          description: Lastname for the guest who made the booking
+          example: Brown
+        totalprice:
+          type: number
+          description: The total price for the booking
+          example: 111
+        depositpaid:
+          type: boolean
+          description: Whether the deposit has been paid or not
+          example: true
+        bookingdates:
+          type: object
+          required:
+            - checkin
+            - checkout
+          properties:
+            checkin:
+              type: string
+              format: date
+              description: Date the guest is checking in
+              example: "2013-02-23"
+            checkout:
+              type: string
+              format: date
+              description: Date the guest is checking out
+              example: "2014-10-23"
+        additionalneeds:
+          type: string
+          description: Any other needs the guest has
+          example: Breakfast
