@@ -1,0 +1,66 @@
+openapi: 3.1.0
+info:
+  title: Restful-Booker API
+  description: A simple booking API for testing and learning web services and software architecture.
+  version: 1.0.0
+servers:
+  - url: http://localhost:3001
+    description: Local development server
+  - url: https://restful-booker.herokuapp.com
+    description: Production demo server
+paths:
+  /ping:
+    get:
+      summary: Health Check
+      description: A simple health check endpoint to confirm whether the API is up and running.
+      responses:
+        '201':
+          description: Created
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Created
+  /auth:
+    post:
+      summary: Create Auth Token
+      description: Creates a new authentication token to use for access to the PUT, PATCH, and DELETE /booking endpoints.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                  example: admin
+                password:
+                  type: string
+                  example: password123
+      responses:
+        '200':
+          description: Successful authentication or bad credentials info
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    required:
+                      - token
+                    properties:
+                      token:
+                        type: string
+                        description: Token to use in future requests in the Cookie or Authorization header.
+                        example: abc123456789012
+                  - type: object
+                    required:
+                      - reason
+                    properties:
+                      reason:
+                        type: string
+                        description: Error message for bad credentials.
+                        example: Bad credentials
