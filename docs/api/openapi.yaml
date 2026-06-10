@@ -207,7 +207,139 @@ paths:
           description: Booking not found
         '418':
           description: Unsupported media type requested via Accept header
+    put:
+      summary: UpdateBooking
+      description: Updates a current booking with a full payload. Requires authentication via token cookie or Basic Auth.
+      security:
+        - cookieAuth: []
+        - basicAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The id of the booking you would like to update
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Booking'
+            example:
+              firstname: James
+              lastname: Brown
+              totalprice: 111
+              depositpaid: true
+              bookingdates:
+                checkin: "2018-01-01"
+                checkout: "2019-01-01"
+              additionalneeds: Breakfast
+          text/xml:
+            schema:
+              $ref: '#/components/schemas/Booking'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Booking'
+      responses:
+        '200':
+          description: Booking successfully updated, returns the updated booking
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+              example:
+                firstname: James
+                lastname: Brown
+                totalprice: 111
+                depositpaid: true
+                bookingdates:
+                  checkin: "2018-01-01"
+                  checkout: "2019-01-01"
+                additionalneeds: Breakfast
+            text/xml:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '403':
+          description: Forbidden – missing or invalid authentication token
+        '405':
+          description: Method not allowed
+    patch:
+      summary: PartialUpdateBooking
+      description: Updates a current booking with a partial payload. Requires authentication via token cookie or Basic Auth.
+      security:
+        - cookieAuth: []
+        - basicAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The id of the booking you would like to partially update
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Booking'
+            example:
+              firstname: James
+              lastname: Brown
+          text/xml:
+            schema:
+              $ref: '#/components/schemas/Booking'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Booking'
+      responses:
+        '200':
+          description: Booking successfully updated, returns the updated booking
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+            text/xml:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '403':
+          description: Forbidden – missing or invalid authentication token
+        '405':
+          description: Method not allowed
+    delete:
+      summary: DeleteBooking
+      description: Deletes a booking from the API. Requires authentication via token cookie or Basic Auth.
+      security:
+        - cookieAuth: []
+        - basicAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The id of the booking you would like to delete
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '201':
+          description: Booking successfully deleted
+        '403':
+          description: Forbidden – missing or invalid authentication token
+        '405':
+          description: Method not allowed
 components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: token
+      description: Token obtained from POST /auth, passed as a cookie header
+    basicAuth:
+      type: http
+      scheme: basic
+      description: HTTP Basic Auth using admin:password123
   schemas:
     Booking:
       type: object
