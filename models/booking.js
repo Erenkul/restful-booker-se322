@@ -70,3 +70,47 @@ exports.deleteAll = function(callback) {
     callback(err);
   }
 };
+
+exports.search = function(queryParams, callback) {
+  try {
+    let results = booking.find();
+
+    if (queryParams.firstname) {
+      const qFirstname = queryParams.firstname.toLowerCase();
+      results = results.filter(b => b.firstname && b.firstname.toLowerCase() === qFirstname);
+    }
+
+    if (queryParams.lastname) {
+      const qLastname = queryParams.lastname.toLowerCase();
+      results = results.filter(b => b.lastname && b.lastname.toLowerCase() === qLastname);
+    }
+
+    if (queryParams.checkin) {
+      const qCheckinDate = new Date(queryParams.checkin);
+      if (isNaN(qCheckinDate.getTime())) {
+        return callback(new Error('Invalid checkin date value'));
+      }
+      results = results.filter(b => {
+        if (!b.bookingdates || !b.bookingdates.checkin) return false;
+        const bCheckinDate = new Date(b.bookingdates.checkin);
+        return bCheckinDate >= qCheckinDate;
+      });
+    }
+
+    if (queryParams.checkout) {
+      const qCheckoutDate = new Date(queryParams.checkout);
+      if (isNaN(qCheckoutDate.getTime())) {
+        return callback(new Error('Invalid checkout date value'));
+      }
+      results = results.filter(b => {
+        if (!b.bookingdates || !b.bookingdates.checkout) return false;
+        const bCheckoutDate = new Date(b.bookingdates.checkout);
+        return bCheckoutDate <= qCheckoutDate;
+      });
+    }
+
+    callback(null, results);
+  } catch (err) {
+    callback(err);
+  }
+};

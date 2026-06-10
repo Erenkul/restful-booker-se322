@@ -88,3 +88,46 @@ exports.bookingWithId = function(req, rawBooking){
     return err.message;
   }
 }
+
+exports.bookingSearch = function(req, rawBookings){
+  try {
+    const bookings = rawBookings.map(function(rawBooking) {
+      const booking = {
+        'bookingid': rawBooking.bookingid,
+        'firstname': rawBooking.firstname,
+        'lastname': rawBooking.lastname,
+        'totalprice': parseInt(rawBooking.totalprice),
+        'depositpaid': Boolean(rawBooking.depositpaid),
+        'bookingdates': {
+          'checkin': date.format(new Date(rawBooking.bookingdates.checkin), 'YYYY-MM-DD'),
+          'checkout': date.format(new Date(rawBooking.bookingdates.checkout), 'YYYY-MM-DD'),
+        }
+      };
+
+      if(typeof(rawBooking.additionalneeds) !== 'undefined'){
+        booking.additionalneeds = rawBooking.additionalneeds;
+      }
+
+      return booking;
+    });
+
+    switch(req.headers.accept){
+      case 'application/xml':
+        return js2xmlparser.parse('bookings', { booking: bookings });
+      case 'application/json':
+        return bookings;
+      case 'application/x-www-form-urlencoded':
+        return formurlencoded({ booking: bookings });
+      case '*/*':
+        return bookings;
+      default:
+        // Default to application/json if accept header is not set or wild
+        if (typeof(req.headers.accept) === 'undefined') {
+          return bookings;
+        }
+        return null;
+    }
+  } catch(err) {
+    return err.message;
+  }
+}

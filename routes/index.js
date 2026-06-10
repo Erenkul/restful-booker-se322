@@ -174,6 +174,39 @@ router.get('/booking', function(req, res, next) {
  * 
  * firstname=Jim&lastname=Brown&totalprice=111&depositpaid=true&bookingdates%5Bcheckin%5D=2018-01-01&bookingdates%5Bcheckout%5D=2019-01-01
  */
+router.get('/booking/search', function(req, res, next) {
+  const query = {};
+
+  if(typeof(req.query.firstname) != 'undefined'){
+    query.firstname = req.query.firstname;
+  }
+
+  if(typeof(req.query.lastname) != 'undefined'){
+    query.lastname = req.query.lastname;
+  }
+
+  if(typeof(req.query.checkin) != 'undefined'){
+    query.checkin = req.query.checkin;
+  }
+
+  if(typeof(req.query.checkout) != 'undefined'){
+    query.checkout = req.query.checkout;
+  }
+
+  Booking.search(query, function(err, records){
+    if(err) {
+      res.sendStatus(500);
+    } else {
+      const results = parse.bookingSearch(req, records);
+      if(results === null) {
+        res.sendStatus(418);
+      } else {
+        res.send(results);
+      }
+    }
+  });
+});
+
 router.get('/booking/:id',function(req, res, next){
   Booking.get(req.params.id, function(err, record){
     if(record){
