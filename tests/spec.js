@@ -553,3 +553,88 @@ describe('restful-booker DELETE /booking', function(){
   })
 
 });
+
+describe('restful-booker - GET /booking/search', function () {
+
+  beforeEach(function (done) {
+    Booking.deleteAll(function () { done(); });
+  });
+
+  it('returns all bookings as full objects when no query params are given', function (done) {
+    request(server)
+      .post('/booking')
+      .send(payload)
+      .then(function () {
+        return request(server).post('/booking').send(payload2);
+      })
+      .then(function () {
+        request(server)
+          .get('/booking/search')
+          .expect(200)
+          .end(function (err, res) {
+            expect(res.body.length).to.equal(2);
+            expect(res.body[0]).to.have.property('bookingid');
+            expect(res.body[0]).to.have.property('firstname');
+            done(err);
+          });
+      });
+  });
+
+  it('filters results by firstname', function (done) {
+    request(server)
+      .post('/booking')
+      .send(payload)
+      .then(function () {
+        return request(server).post('/booking').send(payload2);
+      })
+      .then(function () {
+        request(server)
+          .get('/booking/search?firstname=Sally')
+          .expect(200)
+          .end(function (err, res) {
+            expect(res.body.length).to.equal(1);
+            expect(res.body[0].firstname).to.equal('Sally');
+            done(err);
+          });
+      });
+  });
+
+  it('filters results by checkin date (on or after)', function (done) {
+    request(server)
+      .post('/booking')
+      .send(payload)
+      .then(function () {
+        return request(server).post('/booking').send(payload2);
+      })
+      .then(function () {
+        request(server)
+          .get('/booking/search?checkin=2013-02-02')
+          .expect(200)
+          .end(function (err, res) {
+            expect(res.body.length).to.equal(1);
+            expect(res.body[0].firstname).to.equal('Geoff');
+            done(err);
+          });
+      });
+  });
+
+  it('filters results by checkout date (on or before)', function (done) {
+    request(server)
+      .post('/booking')
+      .send(payload)
+      .then(function () {
+        return request(server).post('/booking').send(payload2);
+      })
+      .then(function () {
+        request(server)
+          .get('/booking/search?checkout=2013-02-04')
+          .expect(200)
+          .end(function (err, res) {
+            expect(res.body.length).to.equal(1);
+            expect(res.body[0].firstname).to.equal('Sally');
+            done(err);
+          });
+      });
+  });
+
+});
